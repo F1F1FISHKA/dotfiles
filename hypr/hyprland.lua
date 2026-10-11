@@ -28,6 +28,7 @@ hl.monitor({
 })
 
 
+
 ---------------------
 ---- MY PROGRAMS ----
 ---------------------
@@ -51,6 +52,12 @@ hl.on("hyprland.start", function ()
   hl.exec_cmd(terminal)
   hl.exec_cmd("nm-applet")
   hl.exec_cmd("copyq")
+    hl.exec_cmd("/usr/lib/polkit-kde-authentication-agent-1")
+    hl.exec_cmd("wl-paste --type text --watch cliphist store")
+    hl.exec_cmd("wl-paste --type image --watch cliphist store")
+    hl.exec_cmd("clipse -listen")
+    hl.exec_cmd("swayosd-server")
+    hl.exec_cmd("systemctl --user enable opentabletdriver.service && systemctl --user start opentabletdriver.service")
 
   hl.exec_cmd("waybar & hyprpaper & chromium & telegram-desktop")
 end)
@@ -64,6 +71,8 @@ end)
 
 hl.env("XCURSOR_SIZE", "24")
 hl.env("HYPRCURSOR_SIZE", "24")
+hl.env("LIBVA_DRIVER_NAME", "nvidia")
+hl.env("__GLX_VENDOR_LIBRARY_NAME", "nvidia")
 
 
 -----------------------
@@ -122,7 +131,7 @@ hl.config({
         shadow = {
             enabled      = true,
             range        = 4,
-            -- render_pofwer = 3,
+            render_power = 3,
             color        = 0xee1a1a1a,
         },
 
@@ -131,6 +140,8 @@ hl.config({
             size      = 3,
             passes    = 3,
             vibrancy  = 0.1696,
+            ignore_opacity = false,
+            noise     = 0.01,
         },
     },
 
@@ -185,6 +196,16 @@ hl.animation({ leaf = "zoomFactor",    enabled = true,  speed = 7,    bezier = "
 --     rounding    = 0,
 -- })
 
+hl.workspace_rule({
+    workspace = "1",
+    monitor = "HDMI-A-2",
+})
+
+hl.workspace_rule({
+    workspace = "2",
+    monitor = "DP-1",
+})
+
 -- See https://wiki.hypr.land/Configuring/Layouts/Dwindle-Layout/ for more
 hl.config({
     dwindle = {
@@ -229,6 +250,7 @@ hl.config({
         kb_model   = "",
         kb_options = "grp:caps_toggle",
         kb_rules   = "",
+        numlock_by_default = true,
 
         follow_mouse = 1,
 
@@ -283,6 +305,11 @@ hl.device({
     sensitivity = 0.5,              -- если курсор стал медленным, поднимите до 0.4 - 0.8
 })
 
+hl.device({
+    name   = "huion-huion-tablet",
+    output = "DP-1",
+})
+
 -- Example per-device config
 -- See https://wiki.hypr.land/Configuring/Advanced-and-Cool/Devices/ for more
 hl.device({
@@ -308,6 +335,8 @@ hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("flameshot full -c -p '/home/
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("chromium"))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + B", hl.dsp.window.float({ action = "toggle" }))
+hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("hyprlock"))
+hl.bind(mainMod .. " + SHIFT + F", hl.dsp.exec_cmd("hyprctl dispatch fullscreen 0"))
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))    -- dwindle only
@@ -356,6 +385,11 @@ hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = tr
 hl.bind("XF86AudioPlay",  hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = true })
 
+hl.bind(mainMod .. " + PRINT", hl.dsp.exec_cmd("hyprshot -m window"))
+hl.bind("SHIFT + PRINT", hl.dsp.exec_cmd("satty -f $(foamshot)"))
+hl.bind("ALT + Tab", hl.dsp.exec_cmd("hyprctl dispatch cyclenext && hyprctl dispatch bringactivetotop"))
+hl.bind(mainMod .. " + XF86AudioRaiseVolume", hl.dsp.exec_cmd("playerctl --player=spotify volume 0.01+"))
+hl.bind(mainMod .. " + XF86AudioLowerVolume", hl.dsp.exec_cmd("playerctl --player=spotify volume 0.01-"))
 
 
 --------------------------------
@@ -406,4 +440,34 @@ hl.window_rule({
 
     move  = "20 monitor_h-120",
     float = true,
+})
+
+hl.window_rule({
+    name  = "copyq-window",
+    match = { class = "^(com.github.hluk.copyq)$" },
+
+    float  = true,
+    center = true,
+    size   = "600 800",
+})
+
+hl.window_rule({
+    name  = "chromium-login-popup",
+    match = {
+        class = "^chromium$",
+        title = ".*Вход – Google Аккаунты – Chromium.*",
+    },
+
+    float  = true,
+    center = true,
+    size   = "850 620",
+})
+
+hl.window_rule({
+    name  = "bitwarden-extension-popup",
+    match = { initial_title = "^_crx_nngceckbapebfimnlniiiahkandclblb$" },
+
+    float  = true,
+    center = true,
+    size   = "400 600",
 })
